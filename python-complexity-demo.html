@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>coin_change.py — Visual Studio Code mockup</title>
+<style>
+:root {
+  color-scheme: dark;
+  --editor: #1f1f1f;
+  --chrome: #181818;
+  --hover: #2a2d2e;
+  --border: #2b2b2b;
+  --text: #cccccc;
+  --muted: #a4a4a4;
+  --blue: #75beff;
+  --focus: #0078d4;
+  --mono: Menlo, Monaco, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--editor); color: var(--text); font: 13px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+button { font: inherit; color: inherit; }
+button { cursor: pointer; }
+button:focus-visible { outline: 1px solid var(--blue); outline-offset: -1px; }
+[hidden] { display: none !important; }
+h1, h2, p { margin: 0; }
+.app { height: 100dvh; min-height: 360px; display: grid; grid-template-rows: 36px minmax(0, 1fr) 22px; }
+.titlebar { background: var(--chrome); border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr minmax(120px, 430px) 1fr; align-items: center; padding: 0 15px; gap: 10px; }
+.traffic { display: flex; gap: 8px; }
+.traffic i { width: 12px; height: 12px; border-radius: 50%; background: #ff5f57; }
+.traffic i:nth-child(2) { background: #febc2e; }
+.traffic i:nth-child(3) { background: #28c840; }
+.command { border: 1px solid #383838; border-radius: 5px; background: #222; text-align: center; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; padding: 1px 8px; font-size: 12px; }
+.workbench { display: grid; grid-template-columns: 48px 192px minmax(0, 1fr); min-height: 0; }
+.workbench.explorer-closed { grid-template-columns: 48px minmax(0, 1fr); }
+.activity, .explorer, .inspector { background: var(--chrome); }
+.activity, .explorer { border-right: 1px solid var(--border); }
+.activity button { width: 100%; height: 48px; display: grid; place-items: center; background: transparent; border: 0; border-left: 2px solid transparent; color: var(--muted); }
+.activity button[aria-expanded="true"] { border-left-color: var(--blue); color: white; }
+.activity button:hover { color: white; }
+.icon { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.3; }
+.explorer-title, .inspector-title { height: 35px; display: flex; align-items: center; padding: 0 16px; font-size: 11px; letter-spacing: .025em; }
+.folder { display: flex; align-items: center; gap: 7px; padding: 3px 8px; border-top: 1px solid var(--border); font-size: 11px; font-weight: 700; }
+.chevron { display: inline-block; width: 6px; height: 6px; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: translateY(-2px) rotate(45deg); }
+.file-tree { padding: 3px 10px 3px 22px; background: #37373d; }
+.file-icon { color: #579aca; width: 16px; height: 16px; vertical-align: middle; flex: none; }
+.editor-group { display: grid; grid-template-rows: 35px 27px minmax(0, 1fr) auto; min-width: 0; min-height: 0; }
+.tabs { background: var(--chrome); display: flex; align-items: stretch; justify-content: space-between; border-bottom: 1px solid var(--border); }
+.tab { display: flex; align-items: center; gap: 7px; padding: 0 12px; border-top: 1px solid var(--blue); border-right: 1px solid var(--border); background: var(--editor); color: white; }
+.actions { display: flex; align-items: center; gap: 5px; padding-inline: 8px; }
+.run, .close { border: 0; border-radius: 4px; background: transparent; padding: 4px 7px; }
+.run { display: flex; align-items: center; gap: 5px; color: #d7d7d7; }
+.run:hover, .close:hover { background: var(--hover); }
+.run svg { width: 14px; height: 14px; }
+.breadcrumb { display: flex; align-items: center; gap: 6px; padding: 0 13px; color: var(--muted); border-bottom: 1px solid #242424; font-size: 12px; }
+.breadcrumb .chevron { transform: rotate(-45deg); margin-right: 4px; }
+.split {
+  --panel-default: 330px;
+  --panel-min: 240px;
+  --editor-min: 240px;
+  --divider-width: 7px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--divider-width)
+    clamp(var(--panel-min), var(--panel-width, var(--panel-default)), calc(100% - var(--editor-min) - var(--divider-width)));
+  min-height: 0;
+}
+.divider { display: grid; place-items: center; background: var(--chrome); border-left: 1px solid var(--border); cursor: col-resize; touch-action: none; }
+.divider::after { content: ""; width: 2px; height: 26px; border-radius: 1px; background: #666; }
+.divider:hover, .divider:focus-visible, .split.resizing .divider { background: var(--focus); }
+.divider:hover::after, .divider:focus-visible::after, .split.resizing .divider::after { background: white; }
+.split.resizing { cursor: col-resize; user-select: none; }
+.split.resizing button { cursor: inherit; }
+.source { overflow: auto; scrollbar-color: #535353 transparent; padding: 8px 0 24px; scroll-padding: 28px; }
+.code-line { display: flex; position: relative; align-items: stretch; min-width: 100%; width: max-content; min-height: 22px; padding: 0 24px 0 0; border: 0; background: transparent; text-align: left; font: 13px/22px var(--mono); font-variant-numeric: tabular-nums; }
+button.code-line:hover { background: #292929; }
+button.code-line .gutter { color: var(--blue); }
+.code-line.in-scope { background: #253039; }
+.code-line.selected { background: #333d46; box-shadow: inset 0 0 0 1px #455765; }
+.gutter { width: 52px; text-align: right; padding-right: 13px; flex: none; user-select: none; color: #949494; }
+.selected .gutter { color: white; }
+.code-line code { color: #d4d4d4; font: inherit; white-space: pre; }
+.keyword { color: #c586c0; }
+.decl { color: #569cd6; }
+.literal { color: #b5cea8; }
+.string { color: #ce9178; }
+.comment { color: #87ad6e; }
+.call { color: #dcdcaa; }
+.variable { color: #9cdcfe; }
+.code-line .mapped { background: #594923; outline: 1px solid #e1ba58; color: #fff1bc; border-radius: 2px; }
+.inspector { min-width: 0; overflow-y: auto; }
+.inspector-title { border-bottom: 1px solid var(--border); }
+.analysis { padding: 15px 16px 20px; }
+#range { color: var(--muted); font-size: 12px; }
+.costs { display: grid; gap: 12px; margin: 10px 0 8px; }
+.cost-label { color: var(--muted); font-size: 12px; }
+.formula { margin: 2px 0; font: 13px/2 var(--mono); color: #eee; overflow-wrap: anywhere; }
+.formula sup { font-size: .82em; line-height: 1; }
+.symbol { padding: 0 2px; border: 0; border-radius: 2px; background: transparent; color: #9cdcfe; text-decoration: underline; text-underline-offset: 3px; }
+.symbol:hover, .symbol[aria-pressed="true"] { color: #fff1bc; background: #594923; }
+#mapping { min-height: 19px; color: #d7bd7f; font-size: 12px; }
+.terminal { border-top: 1px solid #434343; background: var(--editor); }
+.terminal-bar { height: 32px; padding: 0 12px; display: flex; align-items: center; justify-content: space-between; }
+.terminal-label { border-bottom: 1px solid var(--blue); padding-block: 5px; font-size: 11px; }
+.terminal pre { margin: 0; padding: 3px 13px 10px; font: 12px/1.55 var(--mono); overflow: auto; }
+.terminal .caption { color: var(--muted); padding: 0 13px 8px; font-size: 11px; }
+.status { background: var(--chrome); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 9px; color: #bcbcbc; font-size: 11px; }
+.status span:last-child { white-space: pre; }
+@media (max-width: 1000px) {
+  .workbench { grid-template-columns: 42px 140px minmax(0, 1fr); }
+  .workbench.explorer-closed { grid-template-columns: 42px minmax(0, 1fr); }
+  .split { --panel-default: 280px; }
+}
+@media (max-width: 760px) {
+  .activity, .explorer { display: none; }
+  .workbench, .workbench.explorer-closed { grid-template-columns: minmax(0, 1fr); }
+  .split { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(100px, 1fr) minmax(130px, 42%); }
+  .divider { display: none; }
+  .inspector { border-top: 1px solid #434343; }
+  .analysis { padding-top: 8px; }
+  .inspector-title { height: 26px; }
+  .gutter { width: 36px; padding-right: 8px; }
+  .titlebar { grid-template-columns: auto minmax(0, 1fr) auto; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="titlebar">
+    <div class="traffic" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="command">coin_change.py — leetcode-study</div>
+  </header>
+  <div class="workbench" id="workbench">
+    <nav class="activity" aria-label="Activity bar">
+      <button type="button" id="toggle-explorer" title="Explorer" aria-label="Explorer" aria-controls="explorer" aria-expanded="true">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5V2h9l5 5v12h-4M3 5h9l5 5v12H3zM12 5v5h5M16 2v5h5"/></svg>
+      </button>
+    </nav>
+    <aside class="explorer" id="explorer" aria-label="Explorer">
+      <div class="explorer-title">EXPLORER</div>
+      <div class="folder"><span class="chevron" aria-hidden="true"></span> LEETCODE-STUDY</div>
+      <div class="file-tree">coin_change.py</div>
+    </aside>
+    <main class="editor-group">
+      <div class="tabs">
+        <div class="tab">
+          <svg class="file-icon" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 1C4 1 4 2 4 4h4v1H3C1 5 1 7 1 8s0 3 2 3h2V8c0-2 2-2 3-2h3V4c0-2-1-3-3-3ZM6 2.5h1v1H6z"/><path fill="#e9c75e" d="M8 15c4 0 4-1 4-3H8v-1h5c2 0 2-2 2-3s0-3-2-3h-2v3c0 2-2 2-3 2H5v2c0 2 1 3 3 3Zm2-2.5H9v1h1z"/></svg>
+          coin_change.py
+        </div>
+        <div class="actions">
+          <button type="button" class="run" id="run" aria-controls="terminal" aria-expanded="false">
+            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3l14 9-14 9z"/></svg>
+            Run All
+          </button>
+        </div>
+      </div>
+      <div class="breadcrumb">
+        <span>coin_change.py</span>
+      </div>
+      <div class="split" id="editor-split">
+        <div id="source" class="source" role="group" aria-label="coin_change.py source lines"></div>
+        <div class="divider" id="panel-divider" role="separator" tabindex="0" aria-orientation="vertical"
+             aria-label="Resize complexity panel" aria-controls="complexity-panel" title="Drag to resize"></div>
+        <aside class="inspector" id="complexity-panel" aria-labelledby="complexity-title">
+          <h1 class="inspector-title" id="complexity-title">COMPLEXITY</h1>
+          <div class="analysis">
+            <div aria-live="polite">
+              <p id="range"></p>
+              <div class="costs">
+                <div>
+                  <p class="cost-label">Expanded</p>
+                  <div class="formula" id="expanded"></div>
+                </div>
+                <div>
+                  <p class="cost-label">Simplified</p>
+                  <div class="formula" id="simplified"></div>
+                </div>
+              </div>
+            </div>
+            <p id="mapping" aria-live="polite"></p>
+          </div>
+        </aside>
+      </div>
+      <section id="terminal" class="terminal" aria-label="Terminal" hidden>
+        <div class="terminal-bar"><span class="terminal-label">TERMINAL</span><button type="button" id="close-terminal" class="close" aria-label="Close terminal">×</button></div>
+        <pre>❯ python coin_change.py
+DFS: 3
+DFS with memoization: 3
+Bottom-up: 3</pre>
+        <p class="caption">Preset output for coins = [1, 2, 5], amount = 11.</p>
+      </section>
+    </main>
+  </div>
+  <footer class="status"><span>LeetCode 322 · Coin Change</span><span><span id="position">Ln 1</span>   Spaces: 4   UTF-8   Python</span></footer>
+</div>
+<script>
+const sourceText = `# LeetCode 322: Coin Change
+# Return the fewest coins needed to make amount, or -1.
+
+class Solution:
+    def coinchange_dfs(self, coins, amount):
+        def dfs(remaining):
+            if remaining == 0:
+                return 0
+            best = float("inf")
+            for coin in coins:
+                if coin <= remaining:
+                    best = min(best, 1 + dfs(remaining - coin))
+            return best
+
+        result = dfs(amount)
+        return -1 if result == float("inf") else result
+
+    def coinchange_dfs_dp(self, coins, amount):
+        memo = {0: 0}
+
+        def dfs(remaining):
+            if remaining in memo:
+                return memo[remaining]
+            best = float("inf")
+            for coin in coins:
+                if coin <= remaining:
+                    best = min(best, 1 + dfs(remaining - coin))
+            memo[remaining] = best
+            return best
+
+        result = dfs(amount)
+        return -1 if result == float("inf") else result
+
+    def coinchange_bottom_up(self, coins, amount):
+        dp = [float("inf")] * (amount + 1)
+        dp[0] = 0
+        for value in range(1, amount + 1):
+            for coin in coins:
+                if coin <= value:
+                    dp[value] = min(dp[value], 1 + dp[value - coin])
+        return -1 if dp[amount] == float("inf") else dp[amount]
+
+
+def run_all(coins, amount):
+    solution = Solution()
+    print("DFS:", solution.coinchange_dfs(coins, amount))
+    print("DFS with memoization:", solution.coinchange_dfs_dp(coins, amount))
+    print("Bottom-up:", solution.coinchange_bottom_up(coins, amount))
+
+
+if __name__ == "__main__":
+    coins, amount = [1, 2, 5], 11
+    run_all(coins, amount)`;
+
+const source = sourceText.split("\n");
+function anchor(line, token, expression = token) {
+  return { line, token, expression };
+}
+
+const naive = {
+  n: anchor(5, "coins", "len(coins)"),
+  m: anchor(5, "amount"),
+  r: anchor(6, "remaining"),
+  c: anchor(12, "coin")
+};
+const memo = {
+  n: anchor(18, "coins", "len(coins)"),
+  m: anchor(18, "amount"),
+  r: anchor(21, "remaining"),
+  c: anchor(27, "coin")
+};
+const bottom = {
+  n: anchor(34, "coins", "len(coins)"),
+  m: anchor(34, "amount")
+};
+
+function cost(expanded, simplified = expanded) {
+  return { expanded, simplified };
+}
+
+const naiveCost = cost("O(1 + {m} + {n}^[{m}])", "O({n}^[{m}])");
+const memoCost = cost("O(1 + {m} + {m} × {n})", "O({m} × {n})");
+const bottomCost = cost("O(({m} + 1) + {m} + {m} × {n})", "O({m} × {n})");
+const runAllCost = cost(
+  "O(1 + (1 + {m} + {n}^[{m}]) + (1 + {m} + {m} × {n}) + (({m} + 1) + {m} + {m} × {n}))",
+  "O({n}^[{m}])"
+);
+
+function scope(end, cost, bindings) {
+  return { end, ...cost, bindings };
+}
+
+function inputBindings(line) {
+  return { n: anchor(line, "coins", "len(coins)"), m: anchor(line, "amount") };
+}
+
+function sampleCall(line, cost) {
+  return scope(line, cost, inputBindings(line));
+}
+
+const runAllLine = 44;
+
+// Only these lines have a preset analysis. Each block ends at its final body line.
+const scopes = new Map([
+  [5, scope(16, naiveCost, naive)],
+  [6, scope(13, cost("O(1 + {r} + {n}^[{r}])", "O({n}^[{r}])"), naive)],
+  [10, scope(12, cost("O({n} + {r} + {n}^[{r}])", "O({n}^[{r}])"),
+    { ...naive, n: anchor(10, "coins", "len(coins)") })],
+  [12, scope(12, cost("O(1 + ({r} − {c}) + {n}^[{r} − {c}])", "O({n}^[{r} − {c}])"),
+    { ...naive, r: anchor(12, "remaining") })],
+  [15, scope(15, naiveCost, { ...naive, m: anchor(15, "amount") })],
+  [18, scope(32, memoCost, memo)],
+  [21, scope(29, cost("O(1 + {r} + {r} × {n})", "O(1 + {r} × {n})"), memo)],
+  [25, scope(27, cost("O({n} + ({r} − 1) + ({r} − 1) × {n})", "O({r} × {n})"),
+    { ...memo, n: anchor(25, "coins", "len(coins)") })],
+  [27, scope(27, cost("O(1 + ({r} − {c}) + ({r} − {c}) × {n})", "O(1 + ({r} − {c}) × {n})"),
+    { ...memo, r: anchor(27, "remaining") })],
+  [31, scope(31, memoCost, { ...memo, m: anchor(31, "amount") })],
+  [34, scope(41, bottomCost, bottom)],
+  [37, scope(40, cost("O({m} + {m} × {n})", "O({m} × {n})"),
+    { n: anchor(38, "coins", "len(coins)"), m: anchor(37, "amount") })],
+  [38, scope(40, cost("O({n})"), { n: anchor(38, "coins", "len(coins)") })],
+  [runAllLine, scope(48, runAllCost, inputBindings(runAllLine))],
+  [46, sampleCall(46, naiveCost)],
+  [47, sampleCall(47, memoCost)],
+  [48, sampleCall(48, bottomCost)],
+  [53, sampleCall(53, runAllCost)]
+]);
+
+const get = id => document.getElementById(id);
+const editor = get("source");
+const active = { line: 5, symbol: null };
+const codeRows = [];
+const formulaButtons = [];
+const tokensByLine = new Map();
+
+function el(tag, className, text) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+
+function tokenClass(token, rest) {
+  if (token.startsWith("#")) return "comment";
+  if (token.startsWith('"')) return "string";
+  if (/^(def|class|self)$/.test(token)) return "decl";
+  if (/^(if|else|for|in|return)$/.test(token)) return "keyword";
+  if (/^\d+$/.test(token)) return "literal";
+  if (/^[A-Za-z_]\w*$/.test(token)) return /^\s*\(/.test(rest) ? "call" : "variable";
+  return "";
+}
+
+function buildEditor() {
+  const pattern = /#[^\n]*|"[^"]*"|\b[A-Za-z_]\w*\b|\b\d+\b/g;
+  source.forEach((line, index) => {
+    const number = index + 1;
+    const selectable = scopes.has(number);
+    const row = el(selectable ? "button" : "div", "code-line");
+    if (selectable) {
+      row.type = "button";
+      row.setAttribute("aria-label", "Line " + number + ", " + line.trim());
+      row.onclick = () => selectLine(number);
+    }
+    const gutter = el("span", "gutter", number);
+    if (selectable) gutter.setAttribute("aria-hidden", "true");
+    const code = el("code");
+    const tokens = [];
+    let end = 0;
+    for (const match of line.matchAll(pattern)) {
+      code.append(line.slice(end, match.index));
+      end = match.index + match[0].length;
+      const token = el("span", tokenClass(match[0], line.slice(end)), match[0]);
+      tokens.push(token);
+      code.append(token);
+    }
+    code.append(line.slice(end));
+    row.append(gutter, code);
+    tokensByLine.set(number, tokens);
+    codeRows.push(row);
+  });
+  editor.replaceChildren(...codeRows);
+}
+
+function selectLine(number) {
+  active.line = number;
+  active.symbol = null;
+  render();
+}
+
+function renderSelection() {
+  const current = scopes.get(active.line);
+  const binding = current.bindings[active.symbol];
+  const mappedToken = binding && tokensByLine.get(binding.line)
+    .find(token => token.textContent === binding.token);
+  codeRows.forEach((row, index) => {
+    const number = index + 1;
+    row.classList.toggle("selected", number === active.line);
+    row.classList.toggle("in-scope", number >= active.line && number <= current.end);
+    if (scopes.has(number)) row.setAttribute("aria-pressed", String(number === active.line));
+    tokensByLine.get(number).forEach(token => token.classList.toggle("mapped", token === mappedToken));
+  });
+  formulaButtons.forEach(({button, symbol}) => button.setAttribute("aria-pressed", String(active.symbol === symbol)));
+  get("mapping").textContent = binding ? active.symbol + " = " + binding.expression : "";
+  if (mappedToken) mappedToken.scrollIntoView({block:"nearest", inline:"nearest"});
+}
+
+function formulaParts(text, bindings) {
+  return text.split(/(\^\[[^\]]+\]|\{[nmrc]\})/).map(part => {
+    if (part.startsWith("^[")) {
+      const exponent = el("sup");
+      exponent.append(...formulaParts(part.slice(2, -1), bindings));
+      return exponent;
+    }
+    if (!/^\{[nmrc]\}$/.test(part)) return part;
+    const symbol = part[1];
+    const binding = bindings[symbol];
+    const button = el("button", "symbol", symbol);
+    button.type = "button";
+    button.title = "Highlight " + binding.token;
+    button.setAttribute("aria-label", symbol + " = " + binding.expression + ". Highlight " + binding.token);
+    button.onclick = () => {
+      active.symbol = active.symbol === symbol ? null : symbol;
+      renderSelection();
+    };
+    formulaButtons.push({button, symbol});
+    return button;
+  });
+}
+
+function render() {
+  const current = scopes.get(active.line);
+  get("range").textContent = active.line === current.end
+    ? "Line " + active.line : "Lines " + active.line + "–" + current.end;
+  get("position").textContent = "Ln " + active.line;
+  formulaButtons.length = 0;
+  get("expanded").replaceChildren(...formulaParts(current.expanded, current.bindings));
+  get("simplified").replaceChildren(...formulaParts(current.simplified, current.bindings));
+  renderSelection();
+}
+
+function setTerminal(open) {
+  get("terminal").hidden = !open;
+  get("run").setAttribute("aria-expanded", String(open));
+  if (!open) get("run").focus();
+}
+
+get("run").onclick = () => {
+  setTerminal(true);
+  selectLine(runAllLine);
+  codeRows[runAllLine - 1].scrollIntoView({block:"start"});
+};
+get("close-terminal").onclick = () => setTerminal(false);
+get("toggle-explorer").onclick = () => {
+  const explorer = get("explorer");
+  explorer.hidden = !explorer.hidden;
+  get("workbench").classList.toggle("explorer-closed", explorer.hidden);
+  get("toggle-explorer").setAttribute("aria-expanded", String(!explorer.hidden));
+};
+const split = get("editor-split");
+const divider = get("panel-divider");
+const panel = get("complexity-panel");
+let drag = null;
+
+function panelLimits() {
+  const styles = getComputedStyle(split);
+  const min = parseFloat(styles.getPropertyValue("--panel-min"));
+  const editorMin = parseFloat(styles.getPropertyValue("--editor-min"));
+  const max = Math.max(min, split.clientWidth - editorMin - divider.offsetWidth);
+  return { min, max };
+}
+
+function syncDivider() {
+  if (!divider.offsetWidth) return;
+  const { min, max } = panelLimits();
+  const width = panel.offsetWidth;
+  divider.setAttribute("aria-valuemin", String(min));
+  divider.setAttribute("aria-valuemax", String(max));
+  divider.setAttribute("aria-valuenow", String(width));
+  divider.setAttribute("aria-valuetext", width + " pixels");
+}
+
+function setPanelWidth(requestedWidth) {
+  const { min, max } = panelLimits();
+  const width = Math.min(max, Math.max(min, Math.round(requestedWidth)));
+  split.style.setProperty("--panel-width", width + "px");
+  syncDivider();
+}
+
+divider.addEventListener("pointerdown", event => {
+  if (event.button !== 0 || drag) return;
+  event.preventDefault();
+  drag = { pointerId: event.pointerId, x: event.clientX, width: panel.offsetWidth };
+  divider.setPointerCapture(event.pointerId);
+  split.classList.add("resizing");
+});
+
+divider.addEventListener("pointermove", event => {
+  if (drag?.pointerId === event.pointerId) {
+    setPanelWidth(drag.width + drag.x - event.clientX);
+  }
+});
+
+divider.addEventListener("lostpointercapture", event => {
+  if (drag?.pointerId === event.pointerId) {
+    drag = null;
+    split.classList.remove("resizing");
+  }
+});
+
+divider.addEventListener("keydown", event => {
+  const { min, max } = panelLimits();
+  const widthByKey = {
+    ArrowLeft: panel.offsetWidth + 24,
+    ArrowRight: panel.offsetWidth - 24,
+    Home: min,
+    End: max
+  };
+  if (!Object.hasOwn(widthByKey, event.key)) return;
+  event.preventDefault();
+  setPanelWidth(widthByKey[event.key]);
+});
+
+new ResizeObserver(syncDivider).observe(split);
+syncDivider();
+buildEditor();
+render();
+</script>
+</body>
+</html>
